@@ -30,7 +30,7 @@ def page(slug, title, body, blurb=""):
 {body}
 </div>
 <footer><div class="bar">
-  <span>Ocean Fishing reference &amp; planner — private use. Schedule verified against the live tracker; fish data from the community spreadsheet.</span>
+  <span>Ocean Fishing reference &amp; planner. Schedule verified against the live tracker; fish data from the community spreadsheet.</span>
   <span style="margin-left:auto">Next voyage in <b data-next>—</b></span>
 </div></footer>
 <script src="assets/data.js"></script>
@@ -346,7 +346,7 @@ def build_notes():
 <li><b>{len(S["bonuses"])} content bonuses</b> and <b>{len(S["achievements"])} achievements</b>.</li>
 <li>Both 144-voyage patterns, the route tables, and the live planner.</li>
 </ul>
-<p class="small muted">Scope: built for private use — English names only, no localised strings.</p></div>
+<p class="small muted">Scope: English names only — no localised strings.</p></div>
 """, "Method, verification and pitfalls behind this Ocean Fishing reference.")
 
 PAGES = {"index.html": build_index, "schedules.html": build_schedules, "fish.html": build_fish,
