@@ -2,7 +2,7 @@
 """Generate the Ocean Fishing website (static, offline) into website/."""
 import json, html, os, re
 
-P = "D:/ocean-fishing"; W = P + "/website"
+P = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); W = P + "/website"
 S = json.loads(open(W + "/assets/data.js", encoding="utf-8").read()[len("window.OF_SITE = "):].rstrip().rstrip(";"))
 E = lambda s: html.escape(str(s if s is not None else ""), quote=True)
 
