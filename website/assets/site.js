@@ -101,41 +101,48 @@
     q("[data-nowdep]", fam => fam);
   }
 
-  /* ---------- planner ----------
-     Note on innerHTML below: this page is a local, offline tool. The only data
-     it renders is window.OF_SITE from assets/data.js (this project's own JSON),
-     and every interpolated value passes through esc() first. There is no user
-     input, no network fetch and no third-party content, so this is not an XSS
-     vector. */
-  function el(tag, cls, html) {
-    var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e;
+  /* ---------- planner ---------- */
+  function el(tag, cls, text) {
+    var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e;
   }
-  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m]; }); }
   function stars(n) { return "★".repeat(n || 0); }
   function renderStop(stop, fam) {
     var c = el("div", "stopcard");
-    var h = "<h4>" + esc(stop.name) + "</h4><div class='tod'>" + esc(stop.time || "") + "</div>";
+    c.appendChild(el("h4", null, stop.name));
+    c.appendChild(el("div", "tod", stop.time || ""));
     var tg = topTargets(stop, fam);
     if (tg.length) {
-      h += "<div style='margin-top:8px'>";
+      var targets = el("div");
+      targets.style.marginTop = "8px";
       tg.forEach(function (f) {
-        var tag = isIntu(f, fam) ? "<span class='tag intu'>INT</span> " : "";
-        h += "<div class='tgt'><span>" + tag + esc(f.name) + " <span class='b'>" +
-             esc(biteText(f)) + "</span></span><span class='count'>" + (f.points || "") + "</span></div>";
+        var target = el("div", "tgt"), label = el("span");
+        if (isIntu(f, fam)) {
+          label.appendChild(el("span", "tag intu", "INT"));
+          label.appendChild(document.createTextNode(" "));
+        }
+        label.appendChild(document.createTextNode((f.name == null ? "" : f.name) + " "));
+        label.appendChild(el("span", "b", biteText(f)));
+        target.appendChild(label);
+        target.appendChild(el("span", "count", f.points || ""));
+        targets.appendChild(target);
       });
-      h += "</div>";
+      c.appendChild(targets);
     }
-    c.innerHTML = h;
     return c;
   }
   function renderVoyage(ms, fam, isNext) {
     var info = at(ms, fam);
     var card = el("div", "card voyage" + (isNext ? " next" : ""));
-    var d = new Date(ms);
-    card.innerHTML = "<div class='when'><span class='fam " + fam + "'>" + fam + "</span>" +
-      "<span class='t'>" + esc(info.label) + "</span>" +
-      "<span class='u'>" + esc(fmtLocal(d)) + " · " + esc(fmtUTC(d)) + "</span>" +
-      (isNext ? "<span class='count' data-voycd>sails in " + cd(ms) + "</span>" : "") + "</div>";
+    var d = new Date(ms), when = el("div", "when");
+    when.appendChild(el("span", "fam " + fam, fam));
+    when.appendChild(el("span", "t", info.label));
+    when.appendChild(el("span", "u", fmtLocal(d) + " · " + fmtUTC(d)));
+    if (isNext) {
+      var countdown = el("span", "count", "sails in " + cd(ms));
+      countdown.setAttribute("data-voycd", "");
+      when.appendChild(countdown);
+    }
+    card.appendChild(when);
     var row = el("div", "grid g3");
     row.style.marginTop = "10px";
     stopsFor(fam, info).forEach(function (s) { row.appendChild(renderStop(s, fam)); });
@@ -145,7 +152,7 @@
   var planFam = "both", planN = 6;
   function renderPlanner() {
     var host = document.getElementById("planner"); if (!host) return;
-    host.innerHTML = "";
+    host.textContent = "";
     var first = vn(Date.now()) + 1, made = 0, i = 0;
     while (made < planN && i < Math.max(planN * 2, 12)) {
       var ms = (first + i) * TWO;
